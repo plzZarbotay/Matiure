@@ -15,11 +15,7 @@ Matiure serves as a platform for sharing and discussing solutions to programming
 
 ## Problem Sets
 Explore our problem sets to sharpen your C programming skills:
-- [Fibonacci Series](fibonacci/)
-- [Sorting Algorithms](sorting/)
-- [Data Structures](data_structures/)
-- [String Manipulation](strings/)
-- [Mathematical Problems](math/)
+- [🌳 Binary Tree](BinaryTree/)
 - [And more to come!](#)
 
 ## Contributing
