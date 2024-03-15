@@ -1,4 +1,4 @@
-#Task: The values of the leaf of a binary tree with the minimum depth were determined.
+# Task: The values of the leaf of a binary tree with the minimum depth were determined.
 
 C program was utilized to construct and process an ordered binary tree containing nodes of type int. The structure was defined using struct Tree.
 
