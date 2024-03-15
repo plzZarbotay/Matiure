@@ -4,7 +4,7 @@ C program was utilized to construct and process an ordered binary tree containin
 
 The main functions for working with trees were implemented as universal procedures or functions. After the tree was created, its processing was performed through a text menu with the following actions:
 
-[<Open_Code>](/main.c)
+[<<Open_Code>>](https://github.com/plzZarbotay/Matiure/blob/master/BinaryTree/main.c)
 
 - Adding a new node (for a binary tree, the position of the new node was determined according to the requirement to maintain order; for a general tree, the parent of the added node was specified. The added node became the youngest child).
 - Textual visualization of the tree (the value of each node was output on a separate line, with an indent proportional to the depth of the node, in the order of seniority of the nodes).
