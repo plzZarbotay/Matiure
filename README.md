@@ -2,7 +2,7 @@
 
 ![Matiure Logo](/data/matiure.png)
 
-Manature is a repository dedicated to showcasing solutions to various problems implemented in the C programming language. Whether you're a beginner looking to learn C or an experienced programmer seeking efficient solutions, Manature offers a diverse range of problem sets to explore and contribute to.
+Matiure is a repository dedicated to showcasing solutions to various problems implemented in the C programming language. Whether you're a beginner looking to learn C or an experienced programmer seeking efficient solutions, Manature offers a diverse range of problem sets to explore and contribute to.
 
 ## Table of Contents
 - [About](#about)
@@ -11,7 +11,7 @@ Manature is a repository dedicated to showcasing solutions to various problems i
 - [License](#license)
 
 ## About
-Manature serves as a platform for sharing and discussing solutions to programming problems in C. Each problem is carefully selected to challenge your C programming skills and encourage creative problem-solving. Whether it's algorithms, data structures, or practical applications, Manature aims to provide a comprehensive resource for C enthusiasts.
+Matiure serves as a platform for sharing and discussing solutions to programming problems in C. Each problem is carefully selected to challenge your C programming skills and encourage creative problem-solving. Whether it's algorithms, data structures, or practical applications, Manature aims to provide a comprehensive resource for C enthusiasts.
 
 ## Problem Sets
 Explore our problem sets to sharpen your C programming skills:
