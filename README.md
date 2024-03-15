@@ -1,6 +1,6 @@
 # Matiure
 
-![Matiure Logo]([https://example.com/manature_logo.png](https://github.com/plzZarbotay/matiure/blob/master/data/matiure.png)
+![Matiure Logo]([[https://example.com/manature_logo.png](https://github.com/plzZarbotay/matiure/blob/master/data/matiure.png)]
 
 Manature is a repository dedicated to showcasing solutions to various problems implemented in the C programming language. Whether you're a beginner looking to learn C or an experienced programmer seeking efficient solutions, Manature offers a diverse range of problem sets to explore and contribute to.
 
