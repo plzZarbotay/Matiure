@@ -1,5 +1,9 @@
 # Priority Task: The values of the leaf of a binary tree with the minimum depth were determined.
+
+## Simple Binary Tree:
 ![Matiure Logo](/BinaryTree/data/tree.png)
+
+## More
 C program was utilized to construct and process an ordered binary tree containing nodes of type int. The structure was defined using struct Tree.
 
 The main functions for working with trees were implemented as universal procedures or functions. After the tree was created, its processing was performed through a text menu with the following actions:
