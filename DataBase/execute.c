@@ -1,21 +1,26 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 #include "student.h"
 #include "io.h"
 
 typedef struct {
-    double avg_mark;
-    int group;
-} StudentStatistics;
+    double avg_mark; // Средний балл
+    int group; // Группа
+} StudentStatistics; // Статистика студента
 
-double avg_mark(Student *s)
+double avg_mark(Student *s) // Функция для вычисления среднего балла
 {
-    return (s->dm + s->ma + s->la + s->cs + s->hi) / 5.0;
+    if (s->gender == 'F'){ // Проверяем гендер
+        return (s->dm + s->ma + s->la + s->cs + s->hi) / 5.0;
+    }
+    else {
+        return -1; // Отметаем студентов мужского пола
+    }
 }
 
-void sort(int arr[], int length)
+// Using qsort is better, but requires proficiency with pointers :)
+void sort(int arr[], int length) // Сортировка массива
 {
     int tmp;
     for (int i = 1; i < length; ++i) {
@@ -30,53 +35,35 @@ void sort(int arr[], int length)
 int main(int argc, char *argv[])
 {
     if (argc != 2) {
-        printf("Usage:\n\t./execute DB_FILE\n");
+        printf("Использование:\n\t./execute DB_FILE\n"); // Предполагается использование
         exit(0);
     }
 
     FILE *in = fopen(argv[1], "r");
     if (!in) {
-        printf("I/O Error: can't open file.\n");
+        printf("Ошибка ввода-вывода: не удается открыть файл.\n"); // Ошибка ввода-вывода: не удается открыть файл
         exit(1);
     }
 
-    double max_avg = -1.0;
+    double max_avg = -1.0; // Изначально устанавливаем максимальный балл как отрицательное значение
+    int max_group = -1; // Изначально устанавливаем группу с максимальным баллом как -1
 
-    // Each Student maps to { her average mark, her group }
-    StudentStatistics students[200] = { { 0.0, -1 } };
-    int students_qty = 0;
-
-    // Gathering statistics for each student and finding globally maximal average mark
     Student student;
-    while (student_read_bin(&student, in)) {
-        if (student.gender == 'F') {  // Only consider female students
-            double avg = avg_mark(&student);
-            if (avg > max_avg) {
-                max_avg = avg;
-            }
-            students[students_qty++] = (StudentStatistics) {
-                avg, student.group
-            };
+
+    while (student_read_bin(&student, in)) { // Считываем студентов из файла
+        double avg = avg_mark(&student); // Вычисляем средний балл
+        if (avg > max_avg) { // Если текущий средний балл больше максимального
+            max_avg = avg; // Обновляем максимальный балл
+            max_group = student.group; // Обновляем группу с максимальным баллом
         }
     }
 
     fclose(in);
 
-    // Finding groups with maximum average mark
-    int max_avg_groups[200] = { -1 };
-    int max_avg_groups_qty = 0;
-    for (int i = 0; i < students_qty; ++i) {
-        if (students[i].avg_mark == max_avg) {
-            max_avg_groups[max_avg_groups_qty++] = students[i].group;
-        }
-    }
-
-    // Sorting makes counting easy (equal group numbers will be neighbours in sorted array)
-    sort(max_avg_groups, max_avg_groups_qty);
-
-    // Printing the first group with maximum average marks
-    if (max_avg_groups_qty > 0) {
-        printf("%d\n", max_avg_groups[0]);
+    if (max_group != -1) { // Если найдена группа с максимальным баллом
+        printf("Group with MAX: %d\n", max_group);
+    } else {
+        printf("NO DATA! LOL.\n"); // Если не найдено студенток
     }
 
     return 0;
