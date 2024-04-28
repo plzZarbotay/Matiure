@@ -30,8 +30,8 @@ Item iter_get(Iterator *iter) {
 
 void iter_delete(Iterator *iter) {
     ListNode *tmp = iter->node->next;
-    free(iter->node->next);
     iter->node->next = tmp->next;
+    free(tmp);
 }
 
 void print_list(Iterator *iter) {

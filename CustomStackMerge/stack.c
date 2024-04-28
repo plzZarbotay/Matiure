@@ -2,18 +2,24 @@
 #include "stdio.h"
 #include "stdlib.h"
 
-
 Stack* create_stack() {
     Stack* s = (Stack*)malloc(sizeof(Stack));
+    if (s == NULL) {
+        fprintf(stderr, "Memory allocation failed.\n");
+        return NULL;
+    }
     s->head = NULL;
     return s;
 }
 
 StackNode* insert_stack_node(StackNode* parent, int value) {
     StackNode* new_node = (StackNode*)malloc(sizeof(StackNode));
+    if (new_node == NULL) {
+        fprintf(stderr, "Memory allocation failed.\n");
+        return NULL;
+    }
     new_node->element = value;
     new_node->next = parent;
-
     if (parent == NULL) {
         new_node->maxLower = value;
     } else {
@@ -29,6 +35,10 @@ void stack_push(Stack* s, int value) {
 }
 
 int stack_pop(Stack* s) {
+    if (s->head == NULL) {
+        fprintf(stderr, "Stack is empty.\n");
+        exit(EXIT_FAILURE);
+    }
     int data = s->head->element;
     StackNode* tmp = s->head->next;
     free(s->head);
@@ -40,15 +50,9 @@ bool stack_is_empty(Stack* s) {
     return (s->head == NULL);
 }
 
-void stack_destroy(Stack* s) {
-    while (!stack_is_empty(s))
-        stack_pop(s);
-    free(s);
-}
-
 int get_max_in_stack(Stack* s) {
     Stack* second_stack = create_stack();
-    while (s->head->element != s->head->maxLower) {
+    while (!stack_is_empty(s) && s->head->element != s->head->maxLower) {
         stack_push(second_stack, stack_pop(s));
     }
     int max = stack_pop(s);
@@ -58,44 +62,15 @@ int get_max_in_stack(Stack* s) {
     stack_destroy(second_stack);
     return max;
 }
-Stack* merge(Stack* left, Stack* right) {
-    Stack* result = create_stack();
-    while (!stack_is_empty(left) && !stack_is_empty(right)) {
-        if (left->head->element <= right->head->element) {
-            stack_push(result, stack_pop(left));
-        } else {
-            stack_push(result, stack_pop(right));
-        }
-    }
-
-    while (!stack_is_empty(left)) {
-        stack_push(result, stack_pop(left));
-    }
-
-    while (!stack_is_empty(right)) {
-        stack_push(result, stack_pop(right));
-    }
-
-    Stack* reversed_result = create_stack();
-    while (!stack_is_empty(result)) {
-        stack_push(reversed_result, stack_pop(result));
-    }
-    stack_destroy(result);
-
-    return reversed_result;
-}
-
 
 Stack* merge_sort(Stack* s) {
     if (s->head == NULL || s->head->next == NULL) {
         return s;
     }
-
     Stack* left = create_stack();
     Stack* right = create_stack();
     StackNode* current = s->head;
     int index = 0;
-
     while (current != NULL) {
         if (index % 2 == 0) {
             stack_push(left, current->element);
@@ -105,15 +80,50 @@ Stack* merge_sort(Stack* s) {
         current = current->next;
         index++;
     }
-
     left = merge_sort(left);
     right = merge_sort(right);
+    Stack* merged = merge(left, right);
+    stack_destroy(left); 
+    stack_destroy(right);
+    stack_destroy(s);
+    return merged;
+}
 
-    return merge(left, right);
+
+Stack* merge(Stack* left, Stack* right) {
+    Stack* result = create_stack();
+    while (!stack_is_empty(left) && !stack_is_empty(right)) {
+        if (left->head->element <= right->head->element) {
+            stack_push(result, stack_pop(left));
+        } else {
+            stack_push(result, stack_pop(right));
+        }
+    }
+    while (!stack_is_empty(left)) {
+        stack_push(result, stack_pop(left));
+    }
+    while (!stack_is_empty(right)) {
+        stack_push(result, stack_pop(right));
+    }
+    Stack* reversed_result = create_stack();
+    while (!stack_is_empty(result)) {
+        stack_push(reversed_result, stack_pop(result));
+    }
+    stack_destroy(result);
+    return reversed_result;
+}
+
+void stack_destroy(Stack* s) {
+    if (s == NULL) return;
+    while (!stack_is_empty(s)) {
+        StackNode* temp = s->head;
+        s->head = s->head->next;
+        free(temp);
+    }
+    free(s);
 }
 
 void printStack(Stack* s) {
-    system("clear");
     if (stack_is_empty(s)) return;
     StackNode* now = s->head;
     printf("Stack head\n");

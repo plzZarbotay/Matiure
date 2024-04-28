@@ -18,20 +18,13 @@ void list_insert(ListNode *node, Item value)
 }
 
 // Null | aaa | aaa <- bbb <- ccc
-void list_delete_next(ListNode *node)
-{
-    ListNode *n = (ListNode *)malloc(sizeof(ListNode));
+void list_delete_next(ListNode *node) {
+    if (node == NULL || node->next == NULL) {
+        return; // Если нет следующего узла, нечего удалять
+    }
+
     ListNode *delete_node = node->next;
-    if (delete_node->next != NULL)
-    {
-        n->data = delete_node->next->data;
-        n->next = delete_node->next->next;
-        node->next = n;
-    }
-    else
-    {
-        node->next = NULL;
-    }
+    node->next = delete_node->next;
     free(delete_node);
 }
 
