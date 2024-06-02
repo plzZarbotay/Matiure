@@ -4,22 +4,48 @@
 #include <ctype.h>
 
 typedef struct BNode {
-    char data;
+    char* data;
     struct BNode *left;
     struct BNode *right;
 } BNode;
 
 typedef struct NNode {
-    char data;
+    char* data;
     struct NNode *firstChild;
     struct NNode *nextSibling;
 } NNode;
 
-BNode* createBNode(char data) {
+BNode* createBNode(const char* data) {
     BNode* node = (BNode*)malloc(sizeof(BNode));
-    node->data = data;
+    node->data = strdup(data);
     node->left = node->right = NULL;
     return node;
+}
+
+NNode* createNNode(const char* data) {
+    NNode* newNode = (NNode*)malloc(sizeof(NNode));
+    newNode->data = strdup(data);
+    newNode->firstChild = NULL;
+    newNode->nextSibling = NULL;
+    return newNode;
+}
+
+void freeBTree(BNode* root) {
+    if (root) {
+        freeBTree(root->left);
+        freeBTree(root->right);
+        free(root->data);
+        free(root);
+    }
+}
+
+void freeNTree(NNode* root) {
+    if (root) {
+        freeNTree(root->firstChild);
+        freeNTree(root->nextSibling);
+        free(root->data);
+        free(root);
+    }
 }
 
 #define MAX_EXPR_SIZE 100
@@ -30,34 +56,61 @@ int precedence(char op) {
             return 1;
         case '*': case '/':
             return 2;
+        case '~': // Унарный минус
+            return 3;
         default:
             return 0;
     }
 }
 
 void infixToPostfix(const char* infix, char* postfix) {
-    char stack[MAX_EXPR_SIZE];
+    char stack[MAX_EXPR_SIZE][MAX_EXPR_SIZE];
     int top = -1;
     int j = 0;
-    for (int i = 0; infix[i]; i++) {
-        if (isalnum(infix[i])) {
-            postfix[j++] = infix[i];
+    for (int i = 0; infix[i];) {
+        if (isdigit(infix[i])) {
+            char num[MAX_EXPR_SIZE] = {0};
+            int k = 0;
+            while (isdigit(infix[i])) {
+                num[k++] = infix[i++];
+            }
+            num[k] = '\0';
+            j += sprintf(postfix + j, "%s ", num);
         } else if (infix[i] == '(') {
-            stack[++top] = infix[i];
+            strcpy(stack[++top], "(");
+            i++;
         } else if (infix[i] == ')') {
-            while (top != -1 && stack[top] != '(') {
-                postfix[j++] = stack[top--];
+            while (top != -1 && strcmp(stack[top], "(") != 0) {
+                j += sprintf(postfix + j, "%s ", stack[top--]);
             }
-            top--;
+            if (top != -1 && strcmp(stack[top], "(") == 0) {
+                top--; // Pop the '('
+            }
+            i++;
+        } else if (isspace(infix[i])) {
+            i++;
         } else {
-            while (top != -1 && precedence(stack[top]) >= precedence(infix[i])) {
-                postfix[j++] = stack[top--];
+            if (infix[i] == '-' && (i == 0 || infix[i - 1] == '(' || !isdigit(infix[i - 1]))) {
+                char num[MAX_EXPR_SIZE] = {0};
+                int k = 0;
+                num[k++] = infix[i++];
+                while (isdigit(infix[i])) {
+                    num[k++] = infix[i++];
+                }
+                num[k] = '\0';
+                j += sprintf(postfix + j, "%s ", num);
+            } else {
+                while (top != -1 && precedence(stack[top][0]) >= precedence(infix[i])) {
+                    j += sprintf(postfix + j, "%s ", stack[top--]);
+                }
+                char op[2] = {infix[i], '\0'};
+                strcpy(stack[++top], op);
+                i++;
             }
-            stack[++top] = infix[i];
         }
     }
     while (top != -1) {
-        postfix[j++] = stack[top--];
+        j += sprintf(postfix + j, "%s ", stack[top--]);
     }
     postfix[j] = '\0';
 }
@@ -65,25 +118,21 @@ void infixToPostfix(const char* infix, char* postfix) {
 BNode* constructBTreeFromPostfix(const char* postfix) {
     BNode* stack[MAX_EXPR_SIZE];
     int top = -1;
-    for (int i = 0; postfix[i]; i++) {
-        if (isalnum(postfix[i])) {
-            stack[++top] = createBNode(postfix[i]);
+    char token[MAX_EXPR_SIZE];
+    int i = 0;
+
+    while (sscanf(postfix + i, "%s", token) != EOF) {
+        i += strlen(token) + 1; // Move to the next token
+        if (isdigit(token[0]) || (token[0] == '-' && isdigit(token[1]))) {
+            stack[++top] = createBNode(token);
         } else {
-            BNode* node = createBNode(postfix[i]);
+            BNode* node = createBNode(token);
             node->right = stack[top--];
             node->left = stack[top--];
             stack[++top] = node;
         }
     }
     return stack[top];
-}
-
-NNode* createNNode(char data) {
-    NNode* newNode = (NNode*)malloc(sizeof(NNode));
-    newNode->data = data;
-    newNode->firstChild = NULL;
-    newNode->nextSibling = NULL;
-    return newNode;
 }
 
 NNode* addSibling(NNode* node, NNode* sibling) {
@@ -104,31 +153,16 @@ NNode* binaryToNary(BNode* root) {
 
     if (root->left) {
         NNode* leftChild = binaryToNary(root->left);
-        if ((leftChild->data == '+' || leftChild->data == '-' || leftChild->data == '/' || leftChild->data == '*') && root->data == leftChild->data) {
-            NNode* temp = leftChild->firstChild;
-            leftChild->firstChild = nRoot->firstChild;
-            nRoot->firstChild = temp;
-            free(leftChild);
-        } else {
-            nRoot->firstChild = addSibling(nRoot->firstChild, leftChild);
-        }
+        nRoot->firstChild = addSibling(nRoot->firstChild, leftChild);
     }
 
     if (root->right) {
         NNode* rightChild = binaryToNary(root->right);
-        if ((rightChild->data == '+' || rightChild->data == '-' || rightChild->data == '/' || rightChild->data == '*') && root->data == rightChild->data) {
-            NNode* temp = rightChild->firstChild;
-            rightChild->firstChild = nRoot->firstChild;
-            nRoot->firstChild = temp;
-            free(rightChild);
-        } else {
-            nRoot->firstChild = addSibling(nRoot->firstChild, rightChild);
-        }
+        nRoot->firstChild = addSibling(nRoot->firstChild, rightChild);
     }
 
     return nRoot;
 }
-
 
 void printBTree(BNode* root, int space) {
     if (root == NULL) return;
@@ -138,7 +172,7 @@ void printBTree(BNode* root, int space) {
     for (int i = 10; i < space; i++) {
         printf(" ");
     }
-    printf("%c\n", root->data);
+    printf("%s\n", root->data);
     printBTree(root->left, space);
 }
 
@@ -147,11 +181,10 @@ void printNTree(NNode* root, int depth) {
     for (int i = 0; i < depth; i++) {
         printf(" ");
     }
-    printf("%c\n", root->data);
+    printf("%s\n", root->data);
     printNTree(root->firstChild, depth + 1);
     printNTree(root->nextSibling, depth);
 }
-
 void menu() {
     char expression[MAX_EXPR_SIZE];
     char postfix[MAX_EXPR_SIZE];
